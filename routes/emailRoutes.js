@@ -6,7 +6,7 @@ const sendResetEmail = require('../utils/email');
 const router = express.Router();
 
 module.exports = (redisClient, producer) => {
-    // Ruta para verificar si el correo electrónico está en la base de datos y generar un código de 4 dígitos
+    
     router.post('/check-email', async (req, res) => {
         const { email } = req.body;
         const user = await User.findOne({ email });
@@ -15,9 +15,9 @@ module.exports = (redisClient, producer) => {
             return res.status(404).json({ error: 'Email not found' });
         }
 
-        const resetCode = Math.floor(1000 + Math.random() * 9000).toString(); // Generar un código de 4 dígitos
-        const hashedCode = await bcrypt.hash(resetCode, 10); // Encriptar el código
-        redisClient.setex(email, 180, resetCode); // Almacenar el código en Redis con el correo como clave
+        const resetCode = Math.floor(1000 + Math.random() * 9000).toString(); 
+        const hashedCode = await bcrypt.hash(resetCode, 10); 
+        redisClient.setex(email, 180, resetCode); 
 
         try {
             await sendResetEmail(email, resetCode);
