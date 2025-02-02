@@ -11,7 +11,15 @@ const { Kafka } = require('kafkajs');
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors()); // Habilitar CORS
+
+const corsOptions = {
+    origin: '*',  // Permite todos los orígenes
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+  };
+app.use(cors(corsOptions)); // Habilitar CORS
 
 // Conexión a MongoDB
 connectDB();
