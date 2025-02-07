@@ -19,16 +19,17 @@ jobs:
       - name: edit .env file
         env:
           PORT: ${{ secrets.PORT }}
+          HOST: ${{ secrets.HOST }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          REDIS_PORT: ${{ secrets.REDIS_PORT }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
           KAFKA_BROKER: ${{ secrets.KAFKA_BROKER }}
         run: |
           echo "PORT=${PORT}" > .env
+          echo "HOST=${HOST}" >> .env
           echo "MONGODB_URI=${MONGODB_URI}" >> .env
-          echo "REDIS_HOST=${REDIS_HOST}" >> .env
+          echo "REDIS_URL=${REDIS_URL}" >> .env
           echo "REDIS_PORT=${REDIS_PORT}" >> .env
           echo "EMAIL_USER=${EMAIL_USER}" >> .env
           echo "EMAIL_PASS=${EMAIL_PASS}" >> .env
@@ -67,7 +68,7 @@ jobs:
     strategy:
       matrix:
         ec2_instance: 
-          - ec2-44-202-115-65.compute-1.amazonaws.com
+          - ec2-3-233-114-192.compute-1.amazonaws.com
 
     steps:
       - name: Deploy Container
