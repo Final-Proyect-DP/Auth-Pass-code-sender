@@ -3,7 +3,7 @@ info:
   description: API for email verification and sending reset code
   version: "1.0.0"
   title: Email Verification API
-host: localhost:3006
+host: localhost:3012
 basePath: /
 schemes:
   - http
@@ -23,7 +23,7 @@ paths:
                 type: string
       responses:
         200:
-          description: Email returned and reset code sent
+          description: Email verified and reset code sent
           schema:
             type: object
             properties:
@@ -32,12 +32,4 @@ paths:
         404:
           description: Email not found
         500:
-          description: Error sending email
-definitions:
-  User:
-    type: object
-    properties:
-      email:
-        type: string
-      password:
-        type: string
+          description: Error sending email or Kafka message

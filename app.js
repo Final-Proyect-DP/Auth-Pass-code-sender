@@ -7,12 +7,19 @@ const yaml = require('yamljs');
 const connectDB = require('./config/db');
 const connectRedis = require('./config/redis');
 const emailRoutes = require('./routes/emailRoutes');
-const userRoutes = require('./routes/userRoutes');
 const { Kafka } = require('kafkajs');
 
 const app = express();
 app.use(bodyParser.json());
-app.use(cors()); // Habilitar CORS
+
+const corsOptions = {
+    origin: '*',  // Permite todos los orígenes
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+  };
+app.use(cors(corsOptions)); // Habilitar CORS
 
 // Conexión a MongoDB
 connectDB();
@@ -34,7 +41,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Rutas
 app.use('/email', emailRoutes(redisClient, producer));
-app.use('/user', userRoutes(redisClient));
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
