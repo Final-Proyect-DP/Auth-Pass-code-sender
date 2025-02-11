@@ -5,7 +5,7 @@ const sendResetEmail = require('../utils/email');
 
 const router = express.Router();
 
-module.exports = (redisClient, producer) => {
+module.exports = (redisClient) => {
     
     router.post('/check-email', async (req, res) => {
         const { email } = req.body;
@@ -21,16 +21,10 @@ module.exports = (redisClient, producer) => {
 
         try {
             await sendResetEmail(email, resetCode);
-            await producer.send({
-                topic: 'pass.recovery',
-                messages: [
-                    { value: JSON.stringify({ userId: user._id, resetCode: hashedCode }) }
-                ]
-            });
             res.send({ email });
         } catch (error) {
-            console.error('Error sending email or Kafka message:', error);
-            res.status(500).json({ error: 'Error sending email or Kafka message' });
+            console.error('Error sending email:', error);
+            res.status(500).json({ error: 'Error sending email' });
         }
     });
 
