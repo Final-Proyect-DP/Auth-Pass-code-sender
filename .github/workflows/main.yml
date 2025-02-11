@@ -1,11 +1,13 @@
-name: Deploy Pull Request to main Environment
+name: Deploy to production Environment
 
 on:
-  push:
-    branches: [staging]
+  pull_request:
+    types: [closed] 
+    branches: [main]
 
 jobs:
   build_docker_image:
+    if: github.event.pull_request.merged == true
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
 
@@ -19,12 +21,12 @@ jobs:
       - name: edit .env file
         env:
           PORT: ${{ secrets.PORT }}
-          HOST: ${{ secrets.HOST }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          REDIS_URL: ${{ secrets.REDIS_URL }}
+          HOST: ${{ secrets.HOST_PROD }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI_PROD }}
+          REDIS_URL: ${{ secrets.REDIS_URL_PROD }}
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
-          KAFKA_BROKER: ${{ secrets.KAFKA_BROKER }}
+          KAFKA_BROKER: ${{ secrets.KAFKA_BROKER_PROD }}
         run: |
           echo "PORT=${PORT}" > .env
           echo "HOST=${HOST}" >> .env
@@ -50,14 +52,14 @@ jobs:
         with:
           images: byvoxel/auth-pass-code-sender
           tags: |
-            type=raw,value=staging
+            type=raw,value=production
           
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: byvoxel/auth-pass-code-sender:staging
+          tags: byvoxel/auth-pass-code-sender:production
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -68,7 +70,7 @@ jobs:
     strategy:
       matrix:
         ec2_instance: 
-          - ec2-3-233-114-192.compute-1.amazonaws.com
+          - ec2-52-202-22-209.compute-1.amazonaws.com
 
     steps:
       - name: Deploy Container
@@ -81,13 +83,13 @@ jobs:
           timeout: "120s"
           script: |
             set -e
-            echo "Deploying image: byvoxel/auth-pass-code-sender:staging"
+            echo "Deploying image: byvoxel/auth-pass-code-sender:production"
             sudo docker stop auth-pass-code-sender || true
             sudo docker rm auth-pass-code-sender || true
-            sudo docker pull byvoxel/auth-pass-code-sender:staging
+            sudo docker pull byvoxel/auth-pass-code-sender:production
             sudo docker run -d \
               --name auth-pass-code-sender \
               -p 3012:3012 \
               --restart unless-stopped \
-              byvoxel/auth-pass-code-sender:staging
+              byvoxel/auth-pass-code-sender:production
             sudo docker system prune -af --volumes || true
